@@ -24,7 +24,7 @@ extension Contractor {
 
 extension Opening {
     func owner() throws -> Parent<Contractor> {
-        return try parent(ownerId)
+        return try parent(contractor_id)
     }
 }
 

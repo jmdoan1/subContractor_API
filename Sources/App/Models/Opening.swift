@@ -13,7 +13,7 @@ import Foundation
 
 final class Opening: Model {
     var id: Node?
-    var ownerId: Node?
+    var contractor_id: Node?
     var time: Int
     var title: String
     var description: String
@@ -44,7 +44,7 @@ final class Opening: Model {
     
     init(node: Node, in context: Context) throws {
         id = try node.extract("id")
-        ownerId = try node.extract("ownerId")
+        contractor_id = try node.extract("contractor_id")
         time = try node.extract("time")
         title = try node.extract("title")
         description = try node.extract("description")
@@ -59,7 +59,7 @@ final class Opening: Model {
     func makeNode(context: Context) throws -> Node {
         return try Node(node: [
             "id": id,
-            "ownerId": ownerId,
+            "contractor_id": contractor_id,
             "time": time,
             "title": title,
             "description": description,

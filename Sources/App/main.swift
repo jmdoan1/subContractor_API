@@ -8,6 +8,13 @@ import Turnstile
 import TurnstileCrypto
 import TurnstileWeb
 
+//API resources
+//https://codeplanet.io/principles-good-restful-api-design/
+//https://blog.mwaysolutions.com/2014/06/05/10-best-practices-for-better-restful-api/
+
+//Vapor resources
+//https://medium.com/@xGoPox/relation-with-vapor-server-side-swift-b0a5f2daed4f
+
 let drop = Droplet()
 let auth = AuthMiddleware<Contractor>()
 
@@ -80,5 +87,35 @@ drop.get("entries") { req in
     return try JSON(node: entries)
 }
 
+drop.post("openings", Int.self) { request, owner_id in
+    guard let contractor = try Contractor.query().filter("id", Node(owner_id)).first(),
+        let title = request.data["title"]?.string,
+        let description = request.data["description"]?.string,
+        let type = request.data["type"]?.string,
+        let scope = request.data["scope"]?.string,
+        let structure = request.data["structure"]?.string,
+        let rate = request.data["rate"]?.double,
+        let showRate = request.data["showRate"]?.bool,
+        let open = request.data["open"]?.bool else {
+            throw Abort.custom(status: .badRequest, message: "Missing data")
+    }
+    
+    var opening = Opening(title: title, description: description, type: type, scope: scope, structure: structure, rate: rate, showRate: showRate, open: open)
+    opening.contractor_id = contractor.id
+    try opening.save()
+    return opening
+}
+
+drop.get("openings") { request in
+    return try Opening.all().makeJSON()
+}
+
+drop.get("openings", Int.self) { request, owner_id in
+    guard let contractor = try Contractor.query().filter("id", Node(owner_id)).first() else {
+            throw Abort.custom(status: .badRequest, message: "Missing data")
+    }
+    
+    return try contractor.openings().all().makeJSON()
+}
 
 drop.run()
